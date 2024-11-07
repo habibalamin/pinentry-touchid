@@ -21,8 +21,16 @@ macOS keychain.
 This program interacts with the `gpg-agent` for providing a password, using the following rules:
 
 - If the password entry for the given key cannot be found in the Keychain we fallback to the
-  `pinentry-mac` program to get the password. We recommend preventing `pinentry-mac` from storing the
-  password: uncheck the <kbd>Save in keychain</kbd> checkbox in the dialog.
+  `pinentry-mac` program to get the password. If you have multiple keypairs with the same email which
+  you distinguish with the comment field, <strong>you MUST uncheck the <kbd>Save in keychain</kbd>
+  checkbox in the `pinentry-mac`-powered fallback dialog</strong>. `pinentry-touchid` will still
+  save to the keychain, so don't worry about that.
+
+  The problem is that `pinentry-touchid` searches by email and comment, but `pinentry-mac` doesn't
+  save the comment, so when `pinentry-touchid` fails to find the entry in the keychain, it tries to
+  create it with the comment, but since it's just creating it for the same keypair, it results in a
+  “Duplicated entry in the keychain” error in its logs, but a confusing error message from GPG,
+  without an authentication prompt.
 
 - If a password entry is found the user will be shown the Touch ID dialog and upon successful
   authentication the password stored from the keychain will be returned to the gpg-agent.
